@@ -17,8 +17,15 @@
 
 package de.schildbach.wallet.ui.monitor;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Toolbar;
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -39,15 +46,22 @@ public final class NetworkMonitorActivity extends AbstractWalletActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        EdgeToEdge.enable(this, SystemBarStyle.dark(getColor(R.color.bg_action_bar)),
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.network_monitor_content);
+        final Toolbar appbar = findViewById(R.id.network_monitor_appbar);
+        appbar.getNavigationIcon().setTint(getColor(R.color.fg_on_dark_bg_network_significant));
+        setActionBar(appbar);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
         final ViewPager2 pager = findViewById(R.id.network_monitor_pager);
         final ViewPagerTabs pagerTabs = findViewById(R.id.network_monitor_pager_tabs);
-        findViewById(R.id.network_monitor_group).setOnApplyWindowInsetsListener((v, insets) -> {
-            v.setPadding(v.getPaddingLeft(), insets.getSystemWindowInsetTop(), v.getPaddingRight(),
-                    v.getPaddingBottom());
-            return insets;
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.network_monitor_group), (v, windowInsets) -> {
+            final Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
         });
 
         pagerTabs.addTabLabels(TAB_LABELS);

@@ -19,6 +19,9 @@ package de.schildbach.wallet.ui.preference;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import de.schildbach.wallet.R;
 
 import java.util.List;
@@ -30,10 +33,11 @@ public final class PreferenceActivity extends android.preference.PreferenceActiv
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        findViewById(android.R.id.content).setOnApplyWindowInsetsListener((v, insets) -> {
-            v.setPadding(v.getPaddingLeft(), insets.getSystemWindowInsetTop(), v.getPaddingRight(),
-                    v.getPaddingBottom());
-            return insets;
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, windowInsets) -> {
+            final Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
         });
     }
 

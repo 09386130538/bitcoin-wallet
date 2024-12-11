@@ -58,7 +58,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.MenuProvider;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -480,15 +483,21 @@ public final class SendCoinsFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.send_coins_fragment, container, false);
-        view.setOnApplyWindowInsetsListener((v, insets) -> {
-            final int insetBottom = insets.getSystemWindowInsetBottom();
-            if (insetBottom > 0) {
-                final LinearLayout layout = (LinearLayout) v;
-                layout.setShowDividers(layout.getShowDividers() | LinearLayout.SHOW_DIVIDER_END);
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            final Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            final boolean imeVisible = windowInsets.isVisible(WindowInsetsCompat.Type.ime());
+            if (imeVisible) {
+                final Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+                v.setPadding(insets.left, v.getPaddingTop(), insets.right, ime.bottom);
+            } else {
+                v.setPadding(insets.left, v.getPaddingTop(), insets.right, insets.bottom);
             }
-            v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-                    insets.getSystemWindowInsetRight(), insetBottom);
-            return insets;
+            final LinearLayout layout = (LinearLayout) v;
+            if (insets.bottom > 0 && !imeVisible)
+                layout.setShowDividers(layout.getShowDividers() | LinearLayout.SHOW_DIVIDER_END);
+            else
+                layout.setShowDividers(layout.getShowDividers() & ~LinearLayout.SHOW_DIVIDER_END);
+            return windowInsets;
         });
 
         payeeGroup = view.findViewById(R.id.send_coins_payee_group);
